@@ -5,4 +5,4 @@ Uncommment
 - line 227 //matplotlibcpp::show();  
 to plot sequences  
 Dependencies:  
-            - python  
+            - matplotlibcpp - https://github.com/lava/matplotlib-cpp
