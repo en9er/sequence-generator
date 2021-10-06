@@ -11,14 +11,20 @@ template<typename T>
 class Seqgen
 {
 public:
-	Seqgen() {	srand(time(NULL));};
+	static_assert(std::is_arithmetic<T>::value, "Template type must be numeric");
+	Seqgen() {
+		srand(time(NULL));
+	};
 	void Plot(vector<T> arr);
 	void printArr(vector<T>* arr, size_t size);
-	void decreasingSequence(vector<T>* arr, int min, int max, int size, bool fix_time = false, int* time = NULL);
+	
 	void risingSequence(vector<T>* arr, int min, int max, int size, bool fix_time = false, int* time = NULL);
+	void decreasingSequence(vector<T>* arr, int min, int max, int size, bool fix_time = false, int* time = NULL);
+	
 	void sawToothSequence(vector<T>* arr, int min, int max, int size, int interval, bool fix_time = false, int* time = NULL);
 	void sinSequence(vector<T>* arr, int min, int max, int size, int interval, bool fix_time = false, int* time = NULL);
 	void stepOrdered(vector<T>* arr, int min, int max, int size, int interval, bool fix_time = false, int* time = NULL);
+	
 	void quaziOrdered(vector<T>* arr, int min, int max, int size, int interval, bool fix_time = false, int* time = NULL);
 
 	vector<T> randomSequence(size_t size, int minNum, int maxNum, bool fix_time = false, int* time = NULL);
@@ -36,7 +42,7 @@ void Seqgen<T>::printArr(vector<T>* arr, size_t size)
 {
 	for (int i = 0; i < size; i++)
 	{
-		cout << " " << arr->at(i) << ", ";
+		cout << " " << arr->at(i) << " ";
 	}
 }
 
@@ -57,8 +63,8 @@ void Seqgen<T>::risingSequence(vector<T>* arr, int min, int max, int size, bool 
 	{
 		*time = 0;
 		chrono::microseconds endTime = fixTime();
-		*time = endTime.count() - startTime.count();
-		cout << "Rising array spent time(" << size << " " <<typeid(T).name() << " elements): " << endTime.count() - startTime.count() << " mcs" << endl;
+		*time = (endTime.count() - startTime.count()) / 1000;
+		//cout << "Rising array spent time(" << size << " " <<typeid(T).name() << " elements): " << endTime.count() - startTime.count() << " mcs" << endl;
 	}
 
 }
@@ -81,8 +87,8 @@ void Seqgen<T>::decreasingSequence(vector<T>* arr, int min, int max, int size, b
 	{
 		*time = 0;
 		chrono::microseconds endTime = fixTime();
-		*time = endTime.count() - startTime.count();
-		cout << "Decreasing array spent time(" << size << " " << typeid(T).name() << " elements): " << time << " mcs" << endl;
+		*time = (endTime.count() - startTime.count()) / 1000;
+		//cout << "Decreasing array spent time(" << size << " " << typeid(T).name() << " elements): " << time << " mcs" << endl;
 	}
 }
 
@@ -92,16 +98,20 @@ void Seqgen<T>::sawToothSequence(vector<T>* arr, int min, int max, int size, int
 	chrono::microseconds startTime = fixTime();
 	int intervalCount = size / interval;
 	int i = 0;
+	int rise = (interval / 10) * 9;             // 90% of elements is rising part
+	int decrease = interval / 10;                // 10% of elements is decreasing sequence
 	while (i < intervalCount)
 	{
-		risingSequence(arr, min, max, (interval / 10) * 9);
-		decreasingSequence(arr, min, max, (interval / 10));
+		risingSequence(arr, min, max, rise);
+		decreasingSequence(arr, min, max, decrease);
 		i++;
 	}
 	if (fix_time)
 	{
+		*time = 0;
 		chrono::microseconds endTime = fixTime();
-		cout << "SawTooth array spent time(" << size << " " << typeid(T).name() << " elements): " << endTime.count() - startTime.count() << " mcs" << endl;
+		*time = (endTime.count() - startTime.count()) / 1000;		//microseconds / 1000 = milliseconds
+		cout << "Sawtooth array spent time(" << size << " " <<typeid(T).name() << " elements): " << endTime.count() - startTime.count() << " mcs" << endl;
 	}
 }
 
@@ -115,8 +125,8 @@ void Seqgen<T>::sinSequence(vector<T>* arr, int min, int max, int size, int inte
 	{
 		int j = i * interval;
 		int amplitude = max - min;
-		T randMin = 2 * T(i) * PI;
-		T randMax = 2 * (T(i) + 1) * PI;
+		T randMin = 2 * i * PI;             
+		T randMax = 2 * (i + 1) * PI;
 		T currentStep = (randMax - randMin) / interval;
 		while (j < interval * (i + 1) && j < size)
 		{
@@ -129,8 +139,10 @@ void Seqgen<T>::sinSequence(vector<T>* arr, int min, int max, int size, int inte
 	}
 	if (fix_time)
 	{
+		*time = 0;
 		chrono::microseconds endTime = fixTime();
-		cout << "Sin sequence array spent time(" << size << " " << typeid(T).name() << " elements): " << endTime.count() - startTime.count() << " mcs" << endl;
+		*time = (endTime.count() - startTime.count()) / 1000;        //microseconds / 1000 = milliseconds
+		//cout << "Sin sequence array spent time(" << size << " " <<typeid(T).name() << " elements): " << endTime.count() - startTime.count() << " mcs" << endl;
 	}
 }
 
@@ -145,16 +157,18 @@ void Seqgen<T>::stepOrdered(vector<T>* arr, int min, int max, int size, int inte
 	double yInterval = (randMax - randMin) / intervalCount;
 	while (i < intervalCount)
 	{
-		vector<T> tmp = randomSequence((interval / 10) * 8, randMin, randMin + 1);
+		vector<T> tmp = randomSequence((interval / 10) * 8, randMin, randMin + 1);      //80% of interval is horizontal line
 		arr->insert(arr->end(), tmp.begin(), tmp.end());
-		risingSequence(arr, randMin + 1, randMin + yInterval, (interval / 10) * 2);
+		risingSequence(arr, randMin + 1, randMin + yInterval, (interval / 10) * 2);		//20% of interval is rising line
 		randMin += yInterval;
 		i++;
 	}
 	if (fix_time)
 	{
+		*time = 0;
 		chrono::microseconds endTime = fixTime();
-		cout << "Step ordered array spent time(" << size << " " << typeid(T).name() << " elements): " << endTime.count() - startTime.count() << " mcs" << endl;
+		*time = (endTime.count() - startTime.count()) / 1000;        //microseconds / 1000 = milliseconds
+		//cout << "Step ordered array spent time(" << size << " " << typeid(T).name() << " elements): " << (endTime.count() - startTime.count()) / 1000 << " ms" << endl;
 	}
 }
 
@@ -183,8 +197,8 @@ void Seqgen<T>::quaziOrdered(vector<T>* arr, int min, int max, int size, int int
 	{
 		*time = 0;
 		chrono::microseconds endTime = fixTime();
-		*time = (endTime.count() - startTime.count()) / 1000;
-		cout << "Quazi ordered array spent time(" << size << " " << typeid(T).name() << " elements): " << (endTime.count() - startTime.count()) / 1000 << " ms" << endl;
+		*time = (endTime.count() - startTime.count());
+		//cout << "Quazi ordered array spent time(" << size << " " << typeid(T).name() << " elements): " << (endTime.count() - startTime.count()) / 1000 << " ms" << endl;
 	}
 }
 
@@ -214,8 +228,10 @@ vector<T> Seqgen<T>::randomSequence(size_t size, int minNum, int maxNum, bool fi
 	}
 	if (fix_time)
 	{
+		*time = 0;
 		chrono::microseconds endTime = fixTime();
-		cout << "Random array spent time(" << size << " " << typeid(T).name() << " elements): " << endTime.count() - startTime.count() << " mcs" << endl;
+		*time = (endTime.count() - startTime.count()) / 1000;
+		//cout << "Random sequence array spent time(" << size << " " <<typeid(T).name() << " elements): " << endTime.count() - startTime.count() << " mcs" << endl;
 	}
 	return arr;
 }
