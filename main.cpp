@@ -3,106 +3,53 @@
 #include<Seqgen.h>
 using namespace std;
 
+using namespace std;
+
+void QuasiOrderedDouble(double* A, int Size, double Min, double Max)
+{
+    int j = 30;
+    double* B = new double[Size + j];
+    double min = Min;
+    double maxstep = double((Max - Min)) / double(Size);
+    double max = min + maxstep;
+    double tmp = 0;
+    for (int i = 0; i < Size + j; i++)
+    {
+        B[i] = min + ((double)rand() / (double)RAND_MAX * (max - min));
+        min = double(B[i] + maxstep / 100);
+        max += maxstep;
+        if (int((rand() % 100)) < 10) B[i] = min + ((double)rand() * rand()) / ((double)RAND_MAX * RAND_MAX) * (Max - Min);
+
+        if (i == j)
+        {
+            for (int ii = j; ii != 0; ii--)
+            {
+                tmp += B[i - ii];
+            }
+            A[i - j] = double(tmp / j);
+        }
+
+        if (i > j)
+        {
+            tmp = tmp + B[i] - B[i - j];
+            A[i - j] = double(tmp / j);
+        }
+
+        if (B[i] > 100)
+        {
+            int z = 10;
+        }
+    }
+    free(B);
+}
+
+
 int main()
 {
-	Seqgen<double> sequence;
-	vector<double> doubleArr;
-	vector<double> randomTimeDouble;
-	vector<double> risingTimeDouble;
-	vector<double> decreasingTimeDouble;
-	vector<double> sawToothDouble;
-	vector<double> sinTimeDouble;
-	vector<double> stepTimeDouble;
-	vector<double> quaziOrderedTimeDouble;
-	int* time = new int;
-	for (int i = 1; i <= 8; i++)
-	{
-		sequence.risingSequence(&doubleArr, 0, 1000, i * 500000, true, time);
-		risingTimeDouble.push_back(*time);
-		doubleArr.clear();
 
-		sequence.decreasingSequence(&doubleArr, 0, 1000, i * 500000, true, time);
-		decreasingTimeDouble.push_back(*time);
-		doubleArr.clear();
-
-		sequence.randomSequence(0, 1000, i * 500000, true, time);
-		randomTimeDouble.push_back(*time);
-		doubleArr.clear();
-		
-		sequence.stepOrdered(&doubleArr, 0, 1000, i * 500000, 1000, true, time);
-		stepTimeDouble.push_back(*time);
-		doubleArr.clear();
-		
-		sequence.sinSequence(&doubleArr, 0, 1000, i * 500000, 1000, true, time);
-		sinTimeDouble.push_back(*time);
-		doubleArr.clear();
-		
-		sequence.sawToothSequence(&doubleArr, 0, 1000, i * 500000, 1000, true, time);
-		sawToothDouble.push_back(*time);
-		doubleArr.clear();
-
-		sequence.quaziOrdered(&doubleArr, 0, 1000, i * 500000, 1000, true, time);
-		quaziOrderedTimeDouble.push_back(*time);
-		doubleArr.clear();
-	}
-
-	sequence.printArr(&quaziOrderedTimeDouble, quaziOrderedTimeDouble.size());
-	/*sequence.Plot(sequence.randomSequence(1000, 100, 1000, true));
-	arr.clear();
-	
-	sequence.risingSequence(&arr, 10, 400, 1000, true);
-	sequence.Plot(arr);
-	arr.clear();
-
-	sequence.decreasingSequence(&arr, 10, 400, 1000, true);
-	sequence.Plot(arr);
-	arr.clear();
-	
-	sequence.sawToothSequence(&arr, 10, 400, 1000, 100, true);
-	sequence.Plot(arr);
-	arr.clear();
-
-	sequence.sinSequence(&arr, 10, 400, 1000, 100, true);
-	sequence.Plot(arr);
-	arr.clear();
-	
-	sequence.stepOrdered(&arr, 10, 400, 1000, 100, true);
-	sequence.Plot(arr);
-	arr.clear();
-	
-	sequence.quaziOrdered(&arr, 10, 400, 1000, 100, true);
-	sequence.Plot(arr);
-	arr.clear();
-
-
-	cout << endl;
-
-	sequence1.Plot(sequence1.randomSequence(1000, 100, 1000, true));
-	arr1.clear();
-
-	sequence1.risingSequence(&arr1, 10, 400, 1000, true);
-	sequence1.Plot(arr1);
-	arr1.clear();
-
-	sequence1.decreasingSequence(&arr1, 10,400, 1000, true);
-	sequence1.Plot(arr1);
-	arr1.clear();
-
-	sequence1.sawToothSequence(&arr1, 10, 400, 1000, 100, true);
-	sequence1.Plot(arr1);
-	arr1.clear();
-
-	sequence1.sinSequence(&arr1, 10, 400, 1000, 100, true);
-	sequence1.Plot(arr1);
-	arr1.clear();
-
-	sequence1.stepOrdered(&arr1, 10, 400, 1000, 100, true);
-	sequence1.Plot(arr1);
-	arr1.clear();
-
-	sequence1.quaziOrdered(&arr1, 10, 400, 1000, 100, true);
-	sequence1.Plot(arr1);
-	arr1.clear();*/
-
-
+    double tmp = 0;
+    Seqgen<int> s;
+    vector<int> vec;
+    s.risingSequence(&vec, 0, 100, 1000);
 }
+
